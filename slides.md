@@ -1,4 +1,4 @@
-class: center, middle, inverse
+class: center, middle
 
 # Optionals in Swift
 
@@ -199,3 +199,129 @@ let b = a >>= { .Nothing } >>= { .Just($0 - 1) }
 
 Now `b` is `.Nothing` and the last block won't be run at all.
 
+--
+
+The only thing we lack is the ability to unwrap the value.
+
+--
+
+Let's define `&` operator that:
+
+* returns the value when we have it (`.Just` case)
+
+* terminates the program when we don't (`.Nothing` case)
+
+---
+
+## Unwrapping
+
+This should be simple, right?
+--
+ **Nope**.
+
+```
+postfix operator & {}
+
+postfix func & <A>(m: Maybe<A>) -> A {
+    switch m {
+    case let .Just(a):
+        return a
+    case .Nothing:
+        // Oh, bugger...
+        // We don't have an A, but we need to return one
+    }
+}
+```
+--
+
+One thing we can do is to use **bottom** value.
+
+Bottom represents a non-terminating computation which either loops forever or
+fails due to an error.
+
+Bottom value has **any** type.
+
+---
+
+## Making the type checker happy
+
+First we should invent a way to get an `A` out of nowhere.
+--
+
+```
+func bottom<A>() -> A { return bottom() }
+```
+
+Next thing is to make the program crash with an appropriate message.
+--
+
+```
+func error<A>(msg: String) -> A {
+    NSException(name: NSInternalInconsistencyException,
+        reason: msg, userInfo: nil).raise()
+    return bottom()
+}
+```
+
+--
+Complete `&` operator:
+```
+postfix func & <A>(m: Maybe<A>) -> A {
+    switch m {
+    case let .Just(a):
+        return a
+    case .Nothing:
+        return error("Expected something, but found Nothing")
+    }
+}
+```
+---
+## Lifting
+
+There's one more thing that `Optional` has and our implementation doesn't.
+
+Ability to take a single argument function like `increment` and make it work on
+optional values.
+```
+func increment(a: Int) -> Int { return a + 1 }
+
+let ten: Optional<Int> = 10
+let eleven = ten.map(increment)
+```
+
+This concept is known as **lifting**. Let's define such function for `Maybe`.
+
+--
+
+```
+infix operator <^> { associativity left }
+func <^> <A,B>(f: A -> B, m: Maybe<A>) -> Maybe<B> {
+    switch m {
+    case let .Just(a):
+        return .Just(f(a))
+    case .Nothing:
+        return .Nothing
+    }
+}
+```
+
+---
+## Multiparameter lifting
+
+```
+infix operator <*> { associativity left }
+
+func <*> <A,B>(fm: Maybe<A -> B>, m: Maybe<A>) -> Maybe<B> {
+    switch fm {
+    case let .Just(f):
+        return f <^> m
+    case .Nothing:
+        return .Nothing
+    }
+}
+```
+
+---
+class: center, middle
+
+# Questions?
