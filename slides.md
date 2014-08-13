@@ -20,21 +20,20 @@ class: center, middle
 
 * Values
 ```
-foo  : Int
-bar  : String
-baz  : [Int]
-quux : a
+foo : Int
+bar : String
+bar : a
 ```
 
 --
 
 * Functions
 ```
-mod : Int -> Int -> Int
+max : Int -> Int -> Int
 id  : a -> a
+fst : (a, b) -> a
 any : (a -> Bool) -> [a] -> Bool
 map : (a -> b) -> [a] -> [b]
-fst : (a, b) -> a
 ```
 
 --
@@ -45,6 +44,37 @@ ints : [Int]
 name : Optional String
 sth  : Optional a
 ```
+---
+## Swift syntax 101
+
+* Values
+```
+let foo: Int = 10
+let bar: String = "Swift"
+let baz: [Int] = [1, 2, 3, 4]
+```
+--
+
+* Functions
+```
+func max(a: Int)(b: Int) -> Int {
+        if (a > b) { return a }
+        else       { return b }
+}
+```
+```
+func id<A>(a: A) -> A { return a }
+func fst<A,B>(a: A)(b: B) -> A { return a }
+let increment: Int -> Int = { $0 + 1 }
+```
+--
+
+* Compound types
+```
+let ints: [Int] = [1, 2, 3]
+let name: Optional<String> = .None
+```
+
 ---
 
 ## Curried functions
@@ -76,6 +106,31 @@ and then returns the result.
 **Both approaches yield the same result, sometimes one of them is more
 convenient than the other.**
 ---
+
+## Swift syntax 102
+
+Swift allows to write both "regular" and curried functions.
+
+The difference may be hard to notice.
+
+* Regular function
+```
+func min(a: Int, b: Int) -> Int {
+        if (a < b) { return a }
+        else       { return b }
+}
+```
+
+* Curried function
+```
+func min(a: Int)(b: Int) -> Int {
+        if (a < b) { return a }
+        else       { return b }
+}
+```
+
+---
+
 
 ## `Optional` type
 
@@ -295,6 +350,7 @@ This concept is known as **lifting**. Let's define such function for `Maybe`.
 
 ```
 infix operator <^> { associativity left }
+
 func <^> <A,B>(f: A -> B, m: Maybe<A>) -> Maybe<B> {
     switch m {
     case let .Just(a):
@@ -304,14 +360,48 @@ func <^> <A,B>(f: A -> B, m: Maybe<A>) -> Maybe<B> {
     }
 }
 ```
+---
+## Multiparameter lifting
+
+Now we can write something like this:
+```
+let ten: Maybe<Int> = .Just(10)
+
+let eleven = increment <^> ten
+```
+
+--
+When we squint, it looks somewhat like code below, but it does a bit more
+```
+let eleven = increment(ten)
+```
+
+--
+There's one drawback. It only works with functions that take a single
+parameter.
+
+However there is a way to extend it with currying.
+```
+<^> : (a -> b) -> Maybe a -> Maybe b
+```
+--
+
+`b` is an arbitrary type, so it may as well be `c -> d`
+```
+<^> : (a -> c -> d) -> Maybe a -> Maybe (c -> d)
+```
+--
+Now we need a function with type: `Maybe (c -> d) -> Maybe c -> Maybe d`
 
 ---
 ## Multiparameter lifting
 
+That function can be implemented in terms of `<^>`
+
 ```
 infix operator <*> { associativity left }
 
-func <*> <A,B>(fm: Maybe<A -> B>, m: Maybe<A>) -> Maybe<B> {
+func <*> <C,D>(fm: Maybe<C -> D>, m: Maybe<C>) -> Maybe<D> {
     switch fm {
     case let .Just(f):
         return f <^> m
@@ -319,6 +409,21 @@ func <*> <A,B>(fm: Maybe<A -> B>, m: Maybe<A>) -> Maybe<B> {
         return .Nothing
     }
 }
+```
+--
+
+We can use it to lift a function that takes **any number** of arguments as long it
+is curried.
+```
+func diff(a: Int)(b: Int) -> Int { return abs(a - b) }
+
+let result = diff <$> safeDivision(x, y) <*> someValue
+```
+
+--
+Which looks oddly similar to code below
+```
+let result = diff(safeDivision(x, y))(someValue)
 ```
 
 ---
