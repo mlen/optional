@@ -64,7 +64,7 @@ func max(a: Int)(b: Int) -> Int {
 ```
 ```
 func id<A>(a: A) -> A { return a }
-func fst<A,B>(a: A)(b: B) -> A { return a }
+func fst<A,B>(a: A, b: B) -> A { return a }
 let increment: Int -> Int = { $0 + 1 }
 ```
 --
@@ -192,7 +192,7 @@ let year: Int = maybeYear!
 
 --
 
-What types to they have?
+What types do they have?
 
 --
 ```
