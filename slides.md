@@ -12,7 +12,7 @@ class: center, middle
 
 * Inspired by Objective-C, Rust, **Haskell**, Ruby, Python...
 
-* During this hangout main focus will be `Optional` type
+* During this hangout main focus will be put on `Optional` type
 
 ---
 
@@ -417,7 +417,7 @@ is curried.
 ```
 func diff(a: Int)(b: Int) -> Int { return abs(a - b) }
 
-let result = diff <$> safeDivision(x, y) <*> someValue
+let result = diff <^> safeDivision(x, y) <*> someValue
 ```
 
 --
