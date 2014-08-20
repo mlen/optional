@@ -1,30 +1,46 @@
 class: center, middle
 
-# Optionals in Swift
+# Optionals dissected
 
----
+.large[
+Mateusz Lenik
 
-## Swift
+@_mlen
+]
 
-* Programming language announced in 2014 
+???
+I'll describe how they work internally and build them by yourselves. 
 
-* Mix of object oriented and **functional programming**
+Apart from new syntax the new language brings in a type system.
+Type system catches errors in our code and ensures we won't make stupid things.
 
-* Inspired by Objective-C, Rust, **Haskell**, Ruby, Python...
+For some strongly typed languages there is a saying that when code compiles it
+should work correctly.
 
-* During this hangout main focus will be put on `Optional` type
+The language is still very fresh and it is changing from one version of XCode
+to another. Some of the things presented here weren't possible until Xcode 6
+beta 3 was released.
 
+First we need to get familiar with a notation for type signatures
 ---
 
 ## Notation for types
 
 * Values
 ```
-foo : Int
-bar : String
-bar : a
+foo  : Int
+bar  : String
+baz  : a
+quux : (a, b)
 ```
 
+???
+Names are separated from the type by `:`
+
+Capitalized names are concrete types
+
+Lowercased names are type variables, type variables can take any type, for
+example `quux : (Int, Int -> Int)`
 --
 
 * Functions
@@ -36,6 +52,11 @@ any : (a -> Bool) -> [a] -> Bool
 map : (a -> b) -> [a] -> [b]
 ```
 
+???
+We can think about this syntax as that whatever is after the last arrow is the
+returned type, and anything before is a parameter.
+
+It'll be explained clearly in a moment.
 --
 
 * Compound types
@@ -44,6 +65,8 @@ ints : [Int]
 name : Optional String
 sth  : Optional a
 ```
+???
+Compound types are types that are parametrized aka generics
 ---
 ## Swift syntax 101
 
@@ -51,7 +74,6 @@ sth  : Optional a
 ```
 let foo: Int = 10
 let bar: String = "Swift"
-let baz: [Int] = [1, 2, 3, 4]
 ```
 --
 
@@ -67,6 +89,8 @@ func id<A>(a: A) -> A { return a }
 func fst<A,B>(a: A, b: B) -> A { return a }
 let increment: Int -> Int = { $0 + 1 }
 ```
+???
+Notice the slight difference between definition of `max` and `fst`
 --
 
 * Compound types
@@ -100,11 +124,18 @@ min : Int ->  Int -> Int
 
 Curried function takes a value and returns a function that takes another value
 and then returns the result.
+???
+Brackets are usually omitted, but it is very useful to remember you can put
+them back.
 
+Sometimes it makes the reasoning easier
 --
 
 **Both approaches yield the same result, sometimes one of them is more
 convenient than the other.**
+???
+This can be formally proven, but this kind of proof is not really interesting
+here.
 ---
 
 ## Swift syntax 102
@@ -430,3 +461,8 @@ let result = diff(safeDivision(x, y))(someValue)
 class: center, middle
 
 # Questions?
+
+---
+class: center, middle
+
+.large[jobs@pilot.co]
