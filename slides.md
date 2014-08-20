@@ -133,6 +133,7 @@ Sometimes it makes the reasoning easier
 
 **Both approaches yield the same result, sometimes one of them is more
 convenient than the other.**
+
 ???
 This can be formally proven, but this kind of proof is not really interesting
 here.
