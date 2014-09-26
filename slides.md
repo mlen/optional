@@ -1,6 +1,6 @@
 class: center, middle
 
-# Optionals dissected
+# Build yourself your own `Optional`
 
 .large[
 Mateusz Lenik
@@ -461,9 +461,4 @@ let result = diff(safeDivision(x, y))(someValue)
 ---
 class: center, middle
 
-# Questions?
-
----
-class: center, middle
-
-.large[jobs@pilot.co]
+# Thanks!
